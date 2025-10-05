@@ -1,15 +1,15 @@
 import { Button } from "@/components/ui/button";
-import TestComponent from "@/features/test";
 
 export default function Home() {
   return (
-    <div>
-      <Button
-      variant={"destructive"}
-      size={"lg"}
-      >Click me</Button>
-
-      <TestComponent/>
+    <div className="">
+      <Button variant={"primary"} size={"xs"}>Primary</Button>
+      <Button variant={"secondary"}>Secondary</Button>
+      <Button variant={"destructive"}>Destructive</Button>
+      <Button variant={"ghost"}>ghost</Button>
+      <Button variant={"muted"}>muted</Button>
+      <Button variant={"outline"}>Outline</Button>
+      <Button variant={"teritary"}>teritary</Button>
     </div>
   );
 }
