@@ -18,13 +18,8 @@ import Link from "next/link";
 import { loginSchema } from "../schemas";
 import { useLogin } from "../api/use-login";
 
-
-
 export const SignInCard = () => {
-
   const { mutate } = useLogin();
-
-
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -35,7 +30,7 @@ export const SignInCard = () => {
   });
 
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
-    mutate(values);
+    mutate({ json: values });
   };
 
   return (
