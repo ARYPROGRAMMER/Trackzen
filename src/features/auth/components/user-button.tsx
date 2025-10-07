@@ -14,7 +14,7 @@ import { Loader, LogOut } from "lucide-react";
 
 export const UserButton = () => {
   const { data: user, isLoading } = useCurrent();
-  const { mutate } = useLogout();
+  const { mutate, isPending } = useLogout();
 
   if (isLoading) {
     return (
@@ -64,6 +64,7 @@ export const UserButton = () => {
         </div>
         <DottedSeparator className="mb-1" />
         <DropdownMenuItem
+          disabled={isPending}
           onClick={() => mutate()}
           className="h-10 flex items-center justify-center text-amber-700 font-medium cursor-pointer"
         >
