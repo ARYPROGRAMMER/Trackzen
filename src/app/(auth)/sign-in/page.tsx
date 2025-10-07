@@ -1,12 +1,16 @@
-"use client";
+import { getCurrent } from "@/features/auth/actions";
+import { SignInCard } from "@/features/auth/components/sign-in-card";
+import { redirect } from "next/navigation";
+import React from "react";
 
-import { SignInCard } from '@/features/auth/components/sign-in-card'
-import React from 'react'
+const SignInPage = async () => {
+  const user = await getCurrent();
 
-function SignInPage() {
-  return (
-    <SignInCard />
-  )
-}
+  if (user) {
+    redirect("/");
+  }
 
-export default SignInPage
+  return <SignInCard />;
+};
+
+export default SignInPage;
