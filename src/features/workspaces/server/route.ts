@@ -8,14 +8,27 @@ import {
   MEMBERS_ID,
   WORKSPACES_ID,
 } from "@/config";
-import { ID } from "node-appwrite";
+import { ID, Query } from "node-appwrite";
 import { MemberRole } from "@/features/members/type";
 
 const app = new Hono()
   .get("/", sessionMiddleware, async (c) => {
+    const user = c.get("user");
     const tables = c.get("tables");
 
-    const workspaces = await tables.listRows(DATABASE_ID, WORKSPACES_ID);
+    const members = await tables.listRows(DATABASE_ID, MEMBERS_ID, [
+      Query.equal("userId", user.$id),
+    ]);
+
+    if (members.total === 0) {
+      return c.json({ data: { rows: [], total: 0 } });
+    }
+    const workspaceIds = members.rows.map((member) => member.workspaceId);
+
+    const workspaces = await tables.listRows(DATABASE_ID, WORKSPACES_ID, [
+      Query.orderDesc("$createdAt"),
+      Query.contains("$id", workspaceIds),
+    ]);
 
     return c.json({ data: workspaces });
   })
