@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { createWorkspaceSchema } from "../schemas";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { DATABASE_ID, WORKSPACES_ID } from "@/config";
-import { ID, TablesDB } from "node-appwrite";
+import { ID } from "node-appwrite";
 
 const app = new Hono().post(
   "/",
