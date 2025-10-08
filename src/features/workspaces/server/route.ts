@@ -10,6 +10,7 @@ import {
 } from "@/config";
 import { ID, Query } from "node-appwrite";
 import { MemberRole } from "@/features/members/type";
+import { generateInviteCode } from "@/lib/utils";
 
 const app = new Hono()
   .get("/", sessionMiddleware, async (c) => {
@@ -68,7 +69,7 @@ const app = new Hono()
           databaseId: DATABASE_ID,
           tableId: WORKSPACES_ID,
           rowId: ID.unique(),
-          data: { name, userId: user.$id, imageUrl: uploadedImageUrl },
+          data: { name, userId: user.$id, imageUrl: uploadedImageUrl, inviteCode: generateInviteCode(6)},
         });
 
         await tables.createRow({
