@@ -69,7 +69,12 @@ const app = new Hono()
           databaseId: DATABASE_ID,
           tableId: WORKSPACES_ID,
           rowId: ID.unique(),
-          data: { name, userId: user.$id, imageUrl: uploadedImageUrl, inviteCode: generateInviteCode(6)},
+          data: {
+            name,
+            userId: user.$id,
+            imageUrl: uploadedImageUrl,
+            inviteCode: generateInviteCode(6),
+          },
         });
 
         await tables.createRow({
