@@ -156,6 +156,30 @@ const app = new Hono()
 
       return c.json({ data: workspace });
     }
-  );
+  )
+  .delete("/:workspaceId", sessionMiddleware, async (c) => {
+    const tables = c.get("tables");
+    const user = c.get("user");
+    const { workspaceId } = c.req.param();
+    const member = await getMember({
+      tables,
+      workspaceId,
+      userId: user.$id,
+    });
+    if (!member || member.role !== MemberRole.ADMIN) {
+      return c.json(
+        {
+          error: "You do not have permission to delete this workspace",
+        },
+        401
+      );
+    }
+
+    await tables.deleteRow(DATABASE_ID, WORKSPACES_ID, workspaceId);
+
+    return c.json({
+      data: { $id: workspaceId },
+    });
+  });
 
 export default app;
