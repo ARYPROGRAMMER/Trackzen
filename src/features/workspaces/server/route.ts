@@ -180,6 +180,38 @@ const app = new Hono()
     return c.json({
       data: { $id: workspaceId },
     });
+  })
+
+  .post("/:workspaceId/reset-invite-code", sessionMiddleware, async (c) => {
+    const tables = c.get("tables");
+    const user = c.get("user");
+    const { workspaceId } = c.req.param();
+    const member = await getMember({
+      tables,
+      workspaceId,
+      userId: user.$id,
+    });
+    if (!member || member.role !== MemberRole.ADMIN) {
+      return c.json(
+        {
+          error: "You do not have permission to delete this workspace",
+        },
+        401
+      );
+    }
+
+    const workspace = await tables.updateRow(
+      DATABASE_ID,
+      WORKSPACES_ID,
+      workspaceId,
+      {
+        inviteCode: generateInviteCode(6),
+      }
+    );
+
+    return c.json({
+      data: workspace,
+    });
   });
 
 export default app;
