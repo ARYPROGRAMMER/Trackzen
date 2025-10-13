@@ -59,3 +59,27 @@ export const getWorkspace = async ({ workspaceId }: GetWorkspaceProps) => {
     return null;
   }
 };
+
+interface GetWorkspaceInfoProps {
+  workspaceId: string;
+}
+
+export const getWorkspaceInfo = async ({
+  workspaceId,
+}: GetWorkspaceInfoProps) => {
+  try {
+    const { tables } = await createSessionClient();
+
+    const workspace = (await tables.getRow(
+      DATABASE_ID,
+      WORKSPACES_ID,
+      workspaceId
+    )) as any;
+
+    return {
+      name: workspace.name,
+    };
+  } catch {
+    return null;
+  }
+};

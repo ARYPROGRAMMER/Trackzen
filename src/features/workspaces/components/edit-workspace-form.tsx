@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeftIcon, CopyIcon, ImageIcon } from "lucide-react";
@@ -60,6 +60,16 @@ export const EditWorkspaceForm = ({
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [fullInviteLink, setFullInviteLink] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setFullInviteLink(
+        `${window.location.origin}/workspaces/${initialValues.$id}/join/${initialValues.inviteCode}`
+      );
+    }
+  }, [initialValues.$id, initialValues.inviteCode]);
+
   const form = useForm<z.infer<typeof updateWorkspaceSchema>>({
     resolver: zodResolver(updateWorkspaceSchema),
     defaultValues: {
@@ -78,14 +88,13 @@ export const EditWorkspaceForm = ({
       },
       {
         onSuccess: () => {
-          window.location.href = "/";
+          router.push("/");
         },
       }
     );
   };
 
-
-    const handleResetInviteCode = async () => {
+  const handleResetInviteCode = async () => {
     const ok = await confirmReset();
     if (!ok) return;
 
@@ -126,7 +135,6 @@ export const EditWorkspaceForm = ({
     }
   };
 
-  const fullInviteLink = `${window.location.origin}/workspaces/${initialValues.$id}/join/${initialValues.inviteCode}`;
   const handleCopyInviteLink = () => {
     navigator.clipboard.writeText(fullInviteLink).then(() => {
       toast.success("Invite link copied to clipboard");
