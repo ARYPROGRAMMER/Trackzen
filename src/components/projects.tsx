@@ -14,7 +14,6 @@ const Projects = () => {
   const workspaceId = useWorkspaceId();
   const { data } = useGetProjects({ workspaceId });
   const pathname = usePathname();
-  const projectId = null;
   const { open } = useCreateProjectModal();
 
   return (
