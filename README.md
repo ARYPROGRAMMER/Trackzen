@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="./public/logo.svg" alt="Trackzen Logo" />
+	<img src="./readme-logo.svg" alt="Trackzen Logo" />
 </p>
 
 
