@@ -176,6 +176,37 @@ const app = new Hono()
 
       return c.json({ data: project });
     }
-  );
+  )
+  .delete("/:projectId", sessionMiddleware, async (c) => {
+    const tables = c.get("tables");
+    const user = c.get("user");
+    const { projectId } = c.req.param();
+
+    const existingProject = await tables.getRow<any>(
+      DATABASE_ID,
+      PROJECTS_ID,
+      projectId
+    );
+
+    const member = await getMember({
+      tables,
+      workspaceId: existingProject.workspaceId,
+      userId: user.$id,
+    });
+    if (!member) {
+      return c.json(
+        {
+          error: "Unauthorized",
+        },
+        401
+      );
+    }
+
+    await tables.deleteRow(DATABASE_ID, PROJECTS_ID, projectId);
+
+    return c.json({
+      data: { $id: existingProject.$id },
+    });
+  });
 
 export default app;
