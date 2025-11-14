@@ -10,7 +10,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { ID, Query } from "node-appwrite";
 import z from "zod";
-import { createProjectSchema } from "../schema";
+import { createProjectSchema, updateProjectSchema } from "../schema";
 
 const app = new Hono()
   .get(
@@ -108,6 +108,73 @@ const app = new Hono()
         console.error("createRow failed", err);
         return c.json({ error: "Failed to create project" }, 500);
       }
+    }
+  )
+  .patch(
+    "/:projectId",
+    sessionMiddleware,
+    zValidator("form", updateProjectSchema),
+    async (c) => {
+      const tables = c.get("tables");
+      const storage = c.get("storage");
+      const user = c.get("user");
+      const { projectId } = c.req.param();
+
+      const { name, image } = c.req.valid("form");
+
+      const existingProject = await tables.getRow<any>(
+        DATABASE_ID,
+        PROJECTS_ID,
+        projectId
+      );
+
+      const member = await getMember({
+        tables,
+        workspaceId: existingProject.workspaceId,
+        userId: user.$id,
+      });
+
+      if (!member) {
+        return c.json(
+          {
+            error: "Unauthorized",
+          },
+          401
+        );
+      }
+
+      let uploadedImageUrl: string | undefined;
+
+      if (image instanceof File) {
+        const file = await storage.createFile(
+          IMAGES_BUCKET_ID,
+          ID.unique(),
+          image
+        );
+
+        const arrayBuffer = await storage.getFilePreview(
+          IMAGES_BUCKET_ID,
+          file.$id
+        );
+
+        uploadedImageUrl = `data:image/png;base64,${Buffer.from(
+          arrayBuffer
+        ).toString("base64")}`;
+      } else {
+        uploadedImageUrl = image;
+      }
+
+      const project = await tables.updateRow(
+        DATABASE_ID,
+        PROJECTS_ID,
+        projectId,
+        {
+          name,
+          imageUrl: uploadedImageUrl,
+        }
+      );
+
+      return c.json({ data: project });
     }
   );
 
