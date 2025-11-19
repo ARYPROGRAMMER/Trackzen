@@ -59,7 +59,10 @@ export const CreateTaskForm = ({
   const onSubmit = (values: z.infer<typeof createTaskSchema>) => {
     mutate(
       {
-        json: values,
+        json: {
+          ...values,
+          dueDate: values.dueDate.toISOString(),
+        },
       },
       {
         onSuccess: () => {
@@ -203,8 +206,6 @@ export const CreateTaskForm = ({
                   </FormItem>
                 )}
               />
-
-             
             </div>
             <DottedSeparator className="py-7" />
             <div className="flex items-center justify-between">
