@@ -23,22 +23,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useCreateTask } from "../api/use-create-task";
 import { createTaskSchema } from "../schemas";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { TaskStatus } from "../types";
-import { format } from "date-fns";
 import { MemberAvatar } from "@/features/members/components/member-avatar";
 import Image from "next/image";
+import { DatePicker } from "@/components/date-picker";
 
 interface CreateTaskFormProps {
   onCancel?: () => void;
@@ -109,34 +102,7 @@ export const CreateTaskForm = ({
                   <FormItem>
                     <FormLabel>Due Date</FormLabel>
                     <FormControl>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? (
-                              format(new Date(field.value), "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={
-                              field.value ? new Date(field.value) : undefined
-                            }
-                            onSelect={field.onChange}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <DatePicker {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
