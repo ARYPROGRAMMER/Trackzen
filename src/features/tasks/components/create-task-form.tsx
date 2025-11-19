@@ -32,6 +32,7 @@ import { TaskStatus } from "../types";
 import { MemberAvatar } from "@/features/members/components/member-avatar";
 import Image from "next/image";
 import { DatePicker } from "@/components/date-picker";
+import { ProjectAvatar } from "@/features/projects/components/project-avatar";
 
 interface CreateTaskFormProps {
   onCancel?: () => void;
@@ -187,16 +188,11 @@ export const CreateTaskForm = ({
                         {projectOptions.map((project) => (
                           <SelectItem key={project.id} value={project.id}>
                             <div className="flex items-center gap-x-2">
-                              {project.imageUrl ? (
-                                <div className="size-6 relative rounded-md overflow-hidden">
-                                  <Image
-                                    src={project.imageUrl}
-                                    alt={project.name}
-                                    fill
-                                    className="object-cover"
-                                  />
-                                </div>
-                              ) : null}
+                              <ProjectAvatar
+                                className="size-6"
+                                name={project.name}
+                                image={project.imageUrl}
+                              />
                               {project.name}
                             </div>
                           </SelectItem>
@@ -208,23 +204,7 @@ export const CreateTaskForm = ({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        placeholder="Enter task description"
-                        rows={2}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+             
             </div>
             <DottedSeparator className="py-7" />
             <div className="flex items-center justify-between">
