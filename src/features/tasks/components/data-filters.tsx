@@ -10,7 +10,7 @@ import {
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useGetProjects } from "@/features/projects/api/use-get-projects";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
-import { ListChecksIcon } from "lucide-react";
+import { FolderIcon, ListChecksIcon, UserIcon } from "lucide-react";
 import { TaskStatus } from "../types";
 import { useTaskFilters } from "../hooks/use-task-filters";
 
@@ -50,6 +50,22 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
     }
   };
 
+  const onAssigneeChange = (value: string) => {
+    if (value === "all") {
+      setFilters({ assigneeId: null });
+    } else {
+      setFilters({ assigneeId: value as string });
+    }
+  };
+
+  const onProjectChange = (value: string) => {
+    if (value === "all") {
+      setFilters({ projectId: null });
+    } else {
+      setFilters({ projectId: value as string });
+    }
+  };
+
   if (isLoading) {
     return null;
   }
@@ -77,6 +93,54 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
           <SelectItem value={TaskStatus.IN_REVIEW}>In Review</SelectItem>
           <SelectItem value={TaskStatus.TODO}>TODO</SelectItem>
           <SelectItem value={TaskStatus.DONE}>Done</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select
+        defaultValue={assigneeId ?? undefined}
+        onValueChange={(value) => {
+          onAssigneeChange(value);
+        }}
+      >
+        <SelectTrigger className="w-full lg:w-auto h-8">
+          <div className="flex items-center pr-2">
+            <UserIcon className="size-4 mr-2" />
+            <SelectValue placeholder="All Assignees" />
+          </div>
+        </SelectTrigger>
+
+        <SelectContent>
+          <SelectItem value="all">All Assignees</SelectItem>
+          <SelectSeparator />
+          {memberOptions?.map((member) => (
+            <SelectItem key={member.value} value={member.value}>
+              {member.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select
+        defaultValue={projectId ?? undefined}
+        onValueChange={(value) => {
+          onProjectChange(value);
+        }}
+      >
+        <SelectTrigger className="w-full lg:w-auto h-8">
+          <div className="flex items-center pr-2">
+            <FolderIcon className="size-4 mr-2" />
+            <SelectValue placeholder="All Projects" />
+          </div>
+        </SelectTrigger>
+
+        <SelectContent>
+          <SelectItem value="all">All Projects</SelectItem>
+          <SelectSeparator />
+          {projectOptions?.map((project) => (
+            <SelectItem key={project.value} value={project.value}>
+              {project.label}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>
