@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 interface DatePickerProps {
   value: Date | undefined;
-  onChange: (date: Date) => void;
+  onChange: (date: Date | undefined) => void;
   className?: string;
   placeholder?: string;
 }
@@ -42,7 +42,14 @@ export const DatePicker = ({
         <Calendar
           mode="single"
           selected={value}
-          onSelect={(date) => onChange(date as Date)}
+          onSelect={(date) => {
+            // Allow deselection by clicking the same date
+            if (date?.getTime() === value?.getTime()) {
+              onChange(undefined);
+            } else {
+              onChange(date);
+            }
+          }}
           autoFocus
         />
       </PopoverContent>
