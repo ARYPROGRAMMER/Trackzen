@@ -122,7 +122,8 @@ const app = new Hono()
       }
       if (dueDate) {
         console.log("dueDate: ", dueDate);
-        query.push(Query.equal("dueDate", dueDate));
+        query.push(Query.greaterThanEqual("dueDate", dueDate));
+        query.push(Query.lessThan("dueDate", `${dueDate}T23:59:59.999Z`));
       }
 
       const tasks = await tables.listRows(DATABASE_ID, TASKS_ID, query);
