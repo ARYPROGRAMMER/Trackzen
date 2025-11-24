@@ -126,7 +126,7 @@ const app = new Hono()
         query.push(Query.lessThan("dueDate", `${dueDate}T23:59:59.999Z`));
       }
 
-      const tasks = await tables.listRows(DATABASE_ID, TASKS_ID, query);
+      const tasks = await tables.listRows<any>(DATABASE_ID, TASKS_ID, query);
 
       const projectIds = tasks.rows.map((task) => task.projectId);
       const assigneeIds = tasks.rows.map((task) => task.assigneeId);
