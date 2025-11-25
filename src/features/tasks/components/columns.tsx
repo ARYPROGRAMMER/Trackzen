@@ -5,6 +5,8 @@ import { ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProjectAvatar } from "@/features/projects/components/project-avatar";
 import { TaskDate } from "./task-date";
+import { Badge } from "@/components/ui/badge";
+import { snakeCaseToTitleCase } from "@/lib/utils";
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -96,6 +98,24 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => {
       const dueDate = row.original.dueDate;
       return <TaskDate value={dueDate} />;
+    },
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Status
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const status = row.original.status;
+      return <Badge variant={status}>{snakeCaseToTitleCase(status)}</Badge>;
     },
   },
 ];
