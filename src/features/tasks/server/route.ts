@@ -172,6 +172,33 @@ const app = new Hono()
         },
       });
     }
-  );
+  )
+
+  .delete("/:taskId", sessionMiddleware, async (c) => {
+    const user = c.get("user");
+    const tables = c.get("tables");
+    const { taskId } = c.req.param();
+
+    const task = await tables.getRow<any>(DATABASE_ID, TASKS_ID, taskId);
+
+    const member = await getMember({
+      tables,
+      workspaceId: task.workspaceId,
+      userId: user.$id,
+    });
+
+    if (!member) {
+      return c.json(
+        {
+          error: "Unauthorized",
+        },
+        401
+      );
+    }
+
+    await tables.deleteRow(DATABASE_ID, TASKS_ID, taskId);
+
+    return c.json({ data: { $id: task.$id } });
+  });
 
 export default app;
