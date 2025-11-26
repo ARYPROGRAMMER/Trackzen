@@ -303,6 +303,78 @@ const app = new Hono()
         assignee,
       },
     });
-  });
+  })
+
+  .post(
+    "/bulk-update",
+    sessionMiddleware,
+    zValidator(
+      "json",
+      z.object({
+        tasks: z.array(
+          z.object({
+            $id: z.string(),
+            status: z.enum(TaskStatus),
+            position: z.number().int().positive().min(1000).max(1_000_000),
+          })
+        ),
+      })
+    ),
+
+    async (c) => {
+      const user = c.get("user");
+      const tables = c.get("tables");
+      const { tasks } = c.req.valid("json");
+
+      const tasksToUpdate = await tables.listRows<any>(DATABASE_ID, TASKS_ID, [
+        Query.contains(
+          "$id",
+          tasks.map((t) => t.$id)
+        ),
+      ]);
+
+      const workspaceIds = new Set(
+        tasksToUpdate.rows.map((task) => task.workspaceId)
+      );
+
+      if (workspaceIds.size !== 1) {
+        return c.json(
+          {
+            error: "Tasks belong to multiple workspaces",
+          },
+          400
+        );
+      }
+
+      const workspaceId = workspaceIds.values().next().value;
+
+      const member = await getMember({
+        tables,
+        workspaceId,
+        userId: user.$id,
+      });
+
+      if (!member) {
+        return c.json(
+          {
+            error: "Unauthorized",
+          },
+          401
+        );
+      }
+
+      const updatedTasks = await Promise.all(
+        tasks.map(async (task) => {
+          const { $id, status, position } = task;
+          return tables.updateRow(DATABASE_ID, TASKS_ID, $id, {
+            status,
+            position,
+          });
+        })
+      );
+
+      return c.json({ data: updatedTasks });
+    }
+  );
 
 export default app;

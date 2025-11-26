@@ -15,6 +15,7 @@ import { columns } from "./columns";
 import { DataKanban } from "./data-kanban";
 import { useCallback } from "react";
 import { TaskStatus } from "../types";
+import { useBulkUpdateTask } from "../api/use-bulk-update-task";
 
 export const TasksViewSwitcher = () => {
   const [{ status, assigneeId, projectId, dueDate }] = useTaskFilters();
@@ -31,11 +32,15 @@ export const TasksViewSwitcher = () => {
     dueDate,
   });
 
+  const { mutate: bulkUpdate } = useBulkUpdateTask();
+
   const onKanbanChange = useCallback(
     (tasks: { $id: string; status: TaskStatus; position: number }[]) => {
-      console.log("Kanban tasks changed:", tasks);
+      bulkUpdate({
+        json: { tasks },
+      });
     },
-    []
+    [bulkUpdate]
   );
 
   const { open } = useCreateTaskModal();
