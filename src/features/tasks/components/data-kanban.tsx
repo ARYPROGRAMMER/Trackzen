@@ -2,7 +2,7 @@ import {
   DragDropContext,
   Droppable,
   Draggable,
-  DropResult,
+  type DropResult,
 } from "@hello-pangea/dnd";
 import { useCallback, useState, useEffect } from "react";
 import { TaskStatus } from "../types";
@@ -23,9 +23,12 @@ type TaskState = {
 
 interface DataKanbanProps {
   data: any[];
+  onChange: (
+    tasks: { $id: string; status: TaskStatus; position: number }[]
+  ) => void;
 }
 
-export const DataKanban = ({ data }: DataKanbanProps) => {
+export const DataKanban = ({ data, onChange }: DataKanbanProps) => {
   const [tasks, setTasks] = useState<TaskState>(() => {
     const initialTasks: any = {
       [TaskStatus.BACKLOG]: [],
@@ -48,8 +51,112 @@ export const DataKanban = ({ data }: DataKanbanProps) => {
     return initialTasks;
   });
 
+  useEffect(() => {
+    const newTasks: any = {
+      [TaskStatus.BACKLOG]: [],
+      [TaskStatus.TODO]: [],
+      [TaskStatus.IN_PROGRESS]: [],
+      [TaskStatus.IN_REVIEW]: [],
+      [TaskStatus.DONE]: [],
+    };
+
+    data.forEach((task) => {
+      newTasks[task.status].push(task);
+    });
+
+    Object.keys(newTasks).forEach((key) => {
+      newTasks[key as TaskStatus].sort(
+        (a: any, b: any) => a.position - b.position
+      );
+    });
+
+    setTasks(newTasks);
+  }, [data]);
+
+  const onDragEnd = useCallback(
+    (result: DropResult) => {
+      if (!result.destination) return;
+
+      const { source, destination } = result;
+      const sourceStatus = source.droppableId as TaskStatus;
+      const destStatus = destination.droppableId as TaskStatus;
+
+      let updatesPayload: {
+        $id: string;
+        status: TaskStatus;
+        position: number;
+      }[] = [];
+
+      setTasks((prevTasks) => {
+        const newTasks = { ...prevTasks };
+
+        const sourceColumn = [...newTasks[sourceStatus]];
+        const [movedTask] = sourceColumn.splice(source.index, 1);
+
+        if (!movedTask) {
+          console.error("Moved task not found");
+          return prevTasks;
+        }
+
+        const updatedTask =
+          sourceStatus !== destStatus
+            ? { ...movedTask, status: destStatus }
+            : movedTask;
+
+        newTasks[sourceStatus] = sourceColumn;
+
+        const destColumn = [...newTasks[destStatus]];
+        destColumn.splice(destination.index, 0, updatedTask);
+        newTasks[destStatus] = destColumn;
+
+        updatesPayload = [];
+
+        updatesPayload.push({
+          $id: updatedTask.$id,
+          status: destStatus,
+          position: Math.min((destination.index + 1) * 1000, 1_000_000),
+        });
+
+        newTasks[destStatus].forEach((task, index) => {
+          if (task && task.$id !== updatedTask.$id) {
+            const newPosition = Math.min((index + 1) * 1000, 1_000_000);
+
+            if (task.position !== newPosition) {
+              updatesPayload.push({
+                $id: task.$id,
+                status: destStatus,
+                position: newPosition,
+              });
+            }
+          }
+        });
+
+        if (sourceStatus !== destStatus) {
+          newTasks[sourceStatus].forEach((task, index) => {
+            if (task) {
+              const newPosition = Math.min((index + 1) * 1000, 1_000_000);
+
+              if (task.position !== newPosition) {
+                updatesPayload.push({
+                  $id: task.$id,
+                  status: sourceStatus,
+                  position: newPosition,
+                });
+              }
+            }
+          });
+        }
+
+        return newTasks;
+      });
+
+      onChange(updatesPayload);
+    },
+    [onChange]
+  );
+
   return (
-    <DragDropContext onDragEnd={() => {}}>
+    <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex overflow-x-auto">
         {boards.map((board) => {
           return (
@@ -85,6 +192,7 @@ export const DataKanban = ({ data }: DataKanbanProps) => {
                         )}
                       </Draggable>
                     ))}
+                    {provided.placeholder}
                   </div>
                 )}
               </Droppable>
