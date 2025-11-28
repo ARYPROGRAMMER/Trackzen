@@ -283,6 +283,25 @@ const app = new Hono()
     );
 
     return c.json({ data: workspace });
+  })
+
+  .get("/:workspaceId/info", sessionMiddleware, async (c) => {
+    const tables = c.get("tables");
+    const { workspaceId } = c.req.param();
+
+    const workspace = await tables.getRow<any>(
+      DATABASE_ID,
+      WORKSPACES_ID,
+      workspaceId
+    );
+
+    return c.json({
+      data: {
+        $id: workspace.$id,
+        name: workspace.name,
+        imageUrl: workspace.imageUrl,
+      },
+    });
   });
 
 export default app;
