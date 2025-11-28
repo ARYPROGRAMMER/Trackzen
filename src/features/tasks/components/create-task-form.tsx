@@ -22,15 +22,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useCreateTask } from "../api/use-create-task";
 import { createTaskSchema } from "../schemas";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { TaskStatus } from "../types";
 import { MemberAvatar } from "@/features/members/components/member-avatar";
-import Image from "next/image";
 import { DatePicker } from "@/components/date-picker";
 import { ProjectAvatar } from "@/features/projects/components/project-avatar";
 
@@ -46,7 +43,7 @@ export const CreateTaskForm = ({
   memberOptions,
 }: CreateTaskFormProps) => {
   const workspaceId = useWorkspaceId();
-  const router = useRouter();
+
   const { mutate, isPending } = useCreateTask();
 
   const form = useForm<z.infer<typeof createTaskSchema>>({
