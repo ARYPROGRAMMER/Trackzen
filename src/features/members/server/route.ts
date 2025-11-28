@@ -34,7 +34,7 @@ const app = new Hono()
         return c.json({ error: "You are not a member of this workspace" }, 401);
       }
 
-      const members = await tables.listRows(DATABASE_ID, MEMBERS_ID, [
+      const members = await tables.listRows<any>(DATABASE_ID, MEMBERS_ID, [
         Query.equal("workspaceId", workspaceId),
       ]);
 
