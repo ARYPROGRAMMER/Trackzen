@@ -260,6 +260,29 @@ const app = new Hono()
 
       return c.json({ data: workspace });
     }
-  );
+  )
+  .get("/:workspaceId", sessionMiddleware, async (c) => {
+    const user = c.get("user");
+    const tables = c.get("tables");
+    const { workspaceId } = c.req.param();
+
+    const member = await getMember({
+      tables,
+      workspaceId,
+      userId: user.$id,
+    });
+
+    if (!member) {
+      return c.json({ error: "You do not have access to this workspace" }, 401);
+    }
+
+    const workspace = await tables.getRow<any>(
+      DATABASE_ID,
+      WORKSPACES_ID,
+      workspaceId
+    );
+
+    return c.json({ data: workspace });
+  });
 
 export default app;
