@@ -6,18 +6,25 @@ import { MemberAvatar } from "@/features/members/components/member-avatar";
 import { TaskDate } from "./task-date";
 import { Badge } from "@/components/ui/badge";
 import { snakeCaseToTitleCase } from "@/lib/utils";
+import { useEditTaskModal } from "../hooks/use-edit-task-modal";
 
 interface TaskOverviewProps {
   task: any;
 }
 
 export const TaskOverview = ({ task }: TaskOverviewProps) => {
+  const { open } = useEditTaskModal();
+
   return (
     <div className="flex flex-col gap-y-4 col-span-1">
       <div className="bg-muted rounded-lg p-4">
         <div className="flex justify-between items-center">
           <p className="text-lg font-semibold">Overview</p>
-          <Button size={"sm"} variant={"secondary"}>
+          <Button
+            onClick={() => open(task.$id)}
+            size={"sm"}
+            variant={"secondary"}
+          >
             <PencilIcon className="mr-2 size-4" />
             Edit
           </Button>
