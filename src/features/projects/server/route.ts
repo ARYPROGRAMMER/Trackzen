@@ -1,9 +1,4 @@
-import {
-  DATABASE_ID,
-  IMAGES_BUCKET_ID,
-  PROJECTS_ID,
-  WORKSPACES_ID,
-} from "@/config";
+import { DATABASE_ID, IMAGES_BUCKET_ID, PROJECTS_ID } from "@/config";
 import { getMember } from "@/features/members/utils";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
@@ -207,6 +202,35 @@ const app = new Hono()
     return c.json({
       data: { $id: existingProject.$id },
     });
+  })
+  .get("/:projectId", sessionMiddleware, async (c) => {
+    const tables = c.get("tables");
+    const user = c.get("user");
+
+    const { projectId } = c.req.param();
+
+    const project = await tables.getRow<any>(
+      DATABASE_ID,
+      PROJECTS_ID,
+      projectId
+    );
+
+    const member = await getMember({
+      tables,
+      workspaceId: project.workspaceId,
+      userId: user.$id,
+    });
+
+    if (!member) {
+      return c.json(
+        {
+          error: "You are not a member of this workspace",
+        },
+        401
+      );
+    }
+
+    return c.json({ data: project });
   });
 
 export default app;
